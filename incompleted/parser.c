@@ -241,21 +241,29 @@ ConstantValue* compileConstant(void) {
 }
 
 ConstantValue* compileConstant2(void) {
-  // TODO: create and return a constant value
-  ConstantValue* constValue;
-
-  switch (lookAhead->tokenType) {
-  case TK_NUMBER:
-    eat(TK_NUMBER);
-    break;
-  case TK_IDENT:
-    eat(TK_IDENT);
-    break;
-  default:
-    error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
-    break;
-  }
-  return constValue;
+	// create and return a constant value
+	ConstantValue* constValue; 
+	Object* obj;
+	
+	switch (lookAhead->tokenType) {
+        case TK_NUMBER:
+			eat(TK_NUMBER);
+			constValue=makeIntConstant(currentToken->value);
+			break;
+		case TK_IDENT:
+			eat(TK_IDENT);
+			
+			obj=lookupObject(currentToken->string);
+			if((obj!=NULL)&&(obj->kind==OBJ_CONSTANT)&&(obj->constAttrs->value->type==TP_INT))
+				constValue=duplicateConstantValue(obj->constAttrs->value);
+			else
+				error(ERR_UNDECLARED_INT_CONSTANT,currentToken->lineNo,currentToken->colNo);
+			break;
+		default:
+			error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
+			break;
+	}
+	return constValue;
 }
 
 Type* compileType(void) {
