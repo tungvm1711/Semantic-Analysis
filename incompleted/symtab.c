@@ -306,15 +306,28 @@ void cleanSymTab(void) {
 }
 
 void enterBlock(Scope* scope) {
+  // Thay doi pham vi cua bang symtab
   symtab->currentScope = scope;
 }
 
 void exitBlock(void) {
+  // Lien ket toi pham vi ben ngoai
   symtab->currentScope = symtab->currentScope->outer;
 }
 
 Object* lookupObject(char *name) {
   // TODO
+  Scope* scope = symtab->currentScope;
+  Object* obj;
+
+  while (scope != NULL) {
+    obj = findObject(scope->objList, name);
+    if (obj != NULL) return obj;
+    scope = scope->outer;
+  }
+  obj = findObject(symtab->globalObjectList, name);
+  if (obj != NULL) return obj;
+  return NULL;
 }
 
 void declareObject(Object* obj) {
@@ -322,9 +335,11 @@ void declareObject(Object* obj) {
     Object* owner = symtab->currentScope->owner;
     switch (owner->kind) {
     case OBJ_FUNCTION:
+      // Dua vao parameter List cua ham
       addObject(&(owner->funcAttrs->paramList), obj);
       break;
     case OBJ_PROCEDURE:
+      // Dua vao parameter List cua thu tuc
       addObject(&(owner->procAttrs->paramList), obj);
       break;
     default:
