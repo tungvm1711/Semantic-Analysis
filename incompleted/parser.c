@@ -197,24 +197,35 @@ ConstantValue* compileConstant2(void) {
 Type* compileType(void) {
   // TODO: create and return a type
   Type* type;
-
+  Type* elementType;
+  int arraySize;
+  Object* obj;
+    
   switch (lookAhead->tokenType) {
   case KW_INTEGER: 
     eat(KW_INTEGER);
+    type =  makeIntType();
     break;
   case KW_CHAR: 
-    eat(KW_CHAR); 
+    eat(KW_CHAR);
+    type = makeCharType();
     break;
   case KW_ARRAY:
     eat(KW_ARRAY);
     eat(SB_LSEL);
     eat(TK_NUMBER);
+          
+    arraySize = currentToken->value;
+          
     eat(SB_RSEL);
     eat(KW_OF);
     compileType();
+    type = makeArrayType(arraySize, elementType);
     break;
   case TK_IDENT:
     eat(TK_IDENT);
+    obj = checkDeclaredType(currentToken->string);
+    type = duplicateType(obj->typeAttrs->actualType);
     break;
   default:
     error(ERR_INVALID_TYPE, lookAhead->lineNo, lookAhead->colNo);
