@@ -296,7 +296,7 @@ Type* compileType(void) {
     break;
   case TK_IDENT:
     eat(TK_IDENT);
-    obj = checkDeclaredType(currentToken->string);
+    obj = lookupObject(currentToken->string);
     type = duplicateType(obj->typeAttrs->actualType);
     break;
   default:
